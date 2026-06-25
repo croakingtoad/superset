@@ -64,6 +64,9 @@ jobs:
       - name: Install dependencies
         run: bun install --frozen --ignore-scripts
 
+      - name: Set up MSVC build environment
+        uses: ilammy/msvc-dev-cmd@v1
+
       - name: Install desktop native dependencies (Windows prebuild)
         working-directory: apps/desktop
         run: bun run install:deps
