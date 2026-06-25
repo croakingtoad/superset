@@ -675,6 +675,41 @@ export const createSettingsRouter = () => {
 				return { restartedOrgCount };
 			}),
 
+		getDirectHostConnection: publicProcedure
+			.input(z.object({ hostId: z.string() }))
+			.query(({ input }) => {
+				const row = getSettings();
+				const connections = row.directHostConnections ?? {};
+				return connections[input.hostId] ?? null;
+			}),
+
+		setDirectHostConnection: publicProcedure
+			.input(
+				z.object({
+					hostId: z.string(),
+					url: z.string().nullable(),
+					secret: z.string().nullable(),
+				}),
+			)
+			.mutation(({ input }) => {
+				const row = getSettings();
+				const connections = { ...(row.directHostConnections ?? {}) };
+				if (input.url && input.secret) {
+					connections[input.hostId] = { url: input.url, secret: input.secret };
+				} else {
+					delete connections[input.hostId];
+				}
+				localDb
+					.insert(settings)
+					.values({ id: 1, directHostConnections: connections })
+					.onConflictDoUpdate({
+						target: settings.id,
+						set: { directHostConnections: connections },
+					})
+					.run();
+				return { success: true };
+			}),
+
 		getShowPresetsBar: publicProcedure.query(() => {
 			const row = getSettings();
 			return row.showPresetsBar ?? DEFAULT_SHOW_PRESETS_BAR;

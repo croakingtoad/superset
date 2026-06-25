@@ -234,6 +234,9 @@ export const settings = sqliteTable("settings", {
 	exposeHostServiceViaRelay: integer("expose_host_service_via_relay", {
 		mode: "boolean",
 	}),
+	directHostConnections: text("direct_host_connections", {
+		mode: "json",
+	}).$type<Record<string, { url: string; secret: string }>>(),
 });
 
 export type InsertSettings = typeof settings.$inferInsert;

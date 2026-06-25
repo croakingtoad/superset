@@ -3,56 +3,48 @@ import { Input } from "@superset/ui/input";
 import { Label } from "@superset/ui/label";
 import { toast } from "@superset/ui/sonner";
 import { useEffect, useState } from "react";
-import { useOptimisticCollectionActions } from "renderer/routes/_authenticated/hooks/useOptimisticCollectionActions";
+import { electronTrpc } from "renderer/lib/trpc";
 
 interface DirectConnectionSectionProps {
 	hostId: string;
-	currentDirectHostUrl: string | null;
-	currentDirectHostSecret: string | null;
 	canEdit: boolean;
 }
 
 export function DirectConnectionSection({
 	hostId,
-	currentDirectHostUrl,
-	currentDirectHostSecret,
 	canEdit,
 }: DirectConnectionSectionProps) {
-	const actions = useOptimisticCollectionActions();
-	const [url, setUrl] = useState(currentDirectHostUrl ?? "");
-	const [secret, setSecret] = useState(currentDirectHostSecret ?? "");
+	const { data: saved } = electronTrpc.settings.getDirectHostConnection.useQuery(
+		{ hostId },
+	);
+	const setConnection = electronTrpc.settings.setDirectHostConnection.useMutation({
+		onSuccess: () => toast.success("Direct connection saved"),
+		onError: () => toast.error("Failed to save direct connection"),
+	});
+
+	const [url, setUrl] = useState("");
+	const [secret, setSecret] = useState("");
 
 	useEffect(() => {
-		setUrl(currentDirectHostUrl ?? "");
-		setSecret(currentDirectHostSecret ?? "");
-	}, [currentDirectHostUrl, currentDirectHostSecret]);
+		setUrl(saved?.url ?? "");
+		setSecret(saved?.secret ?? "");
+	}, [saved?.url, saved?.secret]);
 
 	const isDirty =
-		url !== (currentDirectHostUrl ?? "") ||
-		secret !== (currentDirectHostSecret ?? "");
+		url !== (saved?.url ?? "") || secret !== (saved?.secret ?? "");
 
 	const handleSave = () => {
-		const trimmedUrl = url.trim();
-		const trimmedSecret = secret.trim();
-		const tx = actions.v2Hosts.updateDirectConnection(
+		setConnection.mutate({
 			hostId,
-			trimmedUrl || null,
-			trimmedSecret || null,
-		);
-		tx?.isPersisted.promise.then(
-			() => toast.success("Direct connection saved"),
-			() => {},
-		);
+			url: url.trim() || null,
+			secret: secret.trim() || null,
+		});
 	};
 
 	const handleClear = () => {
 		setUrl("");
 		setSecret("");
-		const tx = actions.v2Hosts.updateDirectConnection(hostId, null, null);
-		tx?.isPersisted.promise.then(
-			() => toast.success("Direct connection cleared"),
-			() => {},
-		);
+		setConnection.mutate({ hostId, url: null, secret: null });
 	};
 
 	return (
@@ -64,9 +56,9 @@ export function DirectConnectionSection({
 					<code className="text-xs select-text cursor-text">
 						~/.superset/host/&lt;orgId&gt;/manifest.json
 					</code>{" "}
-					on the host machine after setting{" "}
+					on the host machine after running{" "}
 					<code className="text-xs select-text cursor-text">
-						HOST_SERVICE_HOSTNAME=0.0.0.0
+						HOST_SERVICE_HOSTNAME=0.0.0.0 superset start --daemon
 					</code>
 					.
 				</p>
@@ -79,7 +71,7 @@ export function DirectConnectionSection({
 					</Label>
 					<Input
 						id="direct-host-url"
-						placeholder="http://100.x.x.x:48123"
+						placeholder="http://100.x.x.x:32975"
 						value={url}
 						onChange={(e) => setUrl(e.target.value)}
 						disabled={!canEdit}
@@ -110,7 +102,7 @@ export function DirectConnectionSection({
 				>
 					Save
 				</Button>
-				{currentDirectHostUrl && (
+				{saved?.url && (
 					<Button
 						size="sm"
 						variant="outline"

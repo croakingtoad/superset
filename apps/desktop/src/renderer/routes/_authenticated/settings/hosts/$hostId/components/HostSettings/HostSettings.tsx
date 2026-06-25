@@ -182,8 +182,6 @@ export function HostSettings({ hostId }: HostSettingsProps) {
 				{isRemoteTarget && (
 					<DirectConnectionSection
 						hostId={hostId}
-						currentDirectHostUrl={host.directHostUrl ?? null}
-						currentDirectHostSecret={host.directHostSecret ?? null}
 						canEdit={isOwner}
 					/>
 				)}
