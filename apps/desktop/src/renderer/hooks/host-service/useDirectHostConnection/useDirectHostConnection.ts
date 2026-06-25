@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import { electronTrpc } from "renderer/lib/trpc";
+import { electronTrpc } from "renderer/lib/electron-trpc";
 import {
 	setHostServiceSecret,
 } from "renderer/lib/host-service-auth";
