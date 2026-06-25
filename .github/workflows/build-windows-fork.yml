@@ -108,18 +108,6 @@ jobs:
           TARGET_ARCH: x64
         run: bun run compile:app
 
-      - name: Patch copy-native-modules for Windows junction handling
-        shell: pwsh
-        run: |
-          $f = "apps/desktop/scripts/copy-native-modules.ts"
-          $c = Get-Content $f -Raw
-          # rmSync(path) can't remove Windows junction points (EFAULT).
-          # rmSync(path, { recursive, force }) detects reparse points and removes
-          # the junction entry only, without touching the target contents.
-          $c = $c -replace 'rmSync\(modulePath\)', 'rmSync(modulePath, { recursive: true, force: true })'
-          Set-Content $f -Value $c -NoNewline
-          Write-Host "Patched copy-native-modules.ts"
-
       - name: Build Windows NSIS installer
         working-directory: apps/desktop
         env:
