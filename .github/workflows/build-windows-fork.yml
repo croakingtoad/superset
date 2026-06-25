@@ -29,7 +29,7 @@ on:
       - feat/tailscale-direct-connect
 
 permissions:
-  contents: read
+  contents: write
 
 jobs:
   build-windows:
@@ -128,3 +128,15 @@ jobs:
           path: apps/desktop/release/latest.yml
           retention-days: 30
           if-no-files-found: warn
+
+      - name: Publish to GitHub Releases (rolling windows-latest tag)
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release delete windows-latest --cleanup-tag --yes 2>/dev/null || true
+          gh release create windows-latest \
+            --title "Windows Build — Tailscale Direct Connect" \
+            --notes "Custom Windows build with Tailscale direct connect support (feat/tailscale-direct-connect). Install and use as normal; configure direct connection under Settings → Hosts → [remote host] → Direct Connection." \
+            --latest \
+            apps/desktop/release/*.exe
