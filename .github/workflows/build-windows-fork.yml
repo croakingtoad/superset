@@ -69,6 +69,8 @@ jobs:
 
       - name: Install desktop native dependencies (Windows prebuild)
         working-directory: apps/desktop
+        env:
+          CL: /wd4996
         run: bun run install:deps
 
       - name: Clean dev folder
