@@ -244,6 +244,17 @@ export function useOptimisticCollectionActions() {
 							draft.name = name;
 						}),
 					),
+				updateDirectConnection: (
+					hostId: string,
+					directHostUrl: string | null,
+					directHostSecret: string | null,
+				) =>
+					runHostsMutation("Failed to update direct connection", () =>
+						collections.v2Hosts.update(hostId, (draft) => {
+							draft.directHostUrl = directHostUrl;
+							draft.directHostSecret = directHostSecret;
+						}),
+					),
 			},
 			v2UsersHosts: {
 				addMember: (input: {

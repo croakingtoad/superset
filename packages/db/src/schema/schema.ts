@@ -440,6 +440,8 @@ export const v2Hosts = pgTable(
 		machineId: text("machine_id").notNull(),
 		name: text().notNull(),
 		isOnline: boolean("is_online").notNull().default(false),
+		directHostUrl: text("direct_host_url"),
+		directHostSecret: text("direct_host_secret"),
 		createdByUserId: uuid("created_by_user_id").references(() => users.id, {
 			onDelete: "set null",
 		}),

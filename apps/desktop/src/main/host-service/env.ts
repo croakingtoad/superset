@@ -9,6 +9,7 @@ export const env = createEnv({
 		HOST_MIGRATIONS_FOLDER: z.string().min(1),
 		HOST_SERVICE_SECRET: z.string().min(1),
 		HOST_SERVICE_PORT: z.coerce.number().int().positive(),
+		HOST_SERVICE_HOSTNAME: z.string().min(1).default("127.0.0.1"),
 		ORGANIZATION_ID: z.string().min(1),
 		DESKTOP_VITE_PORT: z.coerce.number().int().positive(),
 		RELAY_URL: z.string().url().optional(),

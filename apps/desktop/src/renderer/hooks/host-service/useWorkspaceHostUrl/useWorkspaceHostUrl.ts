@@ -2,6 +2,7 @@ import { buildHostRoutingKey } from "@superset/shared/host-routing";
 import { eq } from "@tanstack/db";
 import { useLiveQuery } from "@tanstack/react-db";
 import { useMemo } from "react";
+import { useDirectHostConnection } from "renderer/hooks/host-service/useDirectHostConnection";
 import { useRelayUrl } from "renderer/hooks/useRelayUrl";
 import { useCollections } from "renderer/routes/_authenticated/providers/CollectionsProvider";
 import { useLocalHostService } from "renderer/routes/_authenticated/providers/LocalHostServiceProvider";
@@ -39,6 +40,8 @@ export function useWorkspaceHostTarget(
 	);
 
 	const match = workspaceId ? (workspaceRows[0] ?? null) : null;
+	const isLocalHost = Boolean(machineId && match?.hostId === machineId);
+	const directUrl = useDirectHostConnection(isLocalHost ? null : (match?.hostId ?? null));
 
 	return useMemo(() => {
 		if (!workspaceId || (!isReady && !match)) return { status: "loading" };
@@ -59,9 +62,9 @@ export function useWorkspaceHostTarget(
 			status: "ready",
 			kind: "remote",
 			hostId: match.hostId,
-			url: `${relayUrl}/hosts/${routingKey}`,
+			url: directUrl ?? `${relayUrl}/hosts/${routingKey}`,
 		};
-	}, [workspaceId, isReady, match, machineId, activeHostUrl, relayUrl]);
+	}, [workspaceId, isReady, match, machineId, activeHostUrl, relayUrl, directUrl]);
 }
 
 /**

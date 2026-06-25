@@ -12,6 +12,7 @@ import { useCollections } from "renderer/routes/_authenticated/providers/Collect
 import { useLocalHostService } from "renderer/routes/_authenticated/providers/LocalHostServiceProvider";
 import type { CandidateRow } from "./components/AddMemberDropdown";
 import { AddMemberDropdown } from "./components/AddMemberDropdown";
+import { DirectConnectionSection } from "./components/DirectConnectionSection";
 import { HostHeader } from "./components/HostHeader";
 import type { MemberRowData } from "./components/MembersTable";
 import { MembersTable } from "./components/MembersTable";
@@ -177,6 +178,15 @@ export function HostSettings({ hostId }: HostSettingsProps) {
 					isOnline={host.isOnline || !isRemoteTarget}
 					canEdit={isOwner}
 				/>
+
+				{isRemoteTarget && (
+					<DirectConnectionSection
+						hostId={hostId}
+						currentDirectHostUrl={host.directHostUrl ?? null}
+						currentDirectHostSecret={host.directHostSecret ?? null}
+						canEdit={isOwner}
+					/>
+				)}
 
 				<section className="space-y-3">
 					<div className="flex items-end justify-between gap-4">

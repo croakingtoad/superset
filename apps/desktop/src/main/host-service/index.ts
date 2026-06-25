@@ -108,7 +108,7 @@ async function main(): Promise<void> {
 
 	const startedAt = Date.now();
 	const server = serve(
-		{ fetch: app.fetch, port: env.HOST_SERVICE_PORT, hostname: "127.0.0.1" },
+		{ fetch: app.fetch, port: env.HOST_SERVICE_PORT, hostname: env.HOST_SERVICE_HOSTNAME },
 		(info: { port: number }) => {
 			// Install only after the server is listening so startup throws still
 			// reach `main().catch(...)` and exit with a non-zero code.
@@ -118,7 +118,7 @@ async function main(): Promise<void> {
 				try {
 					writeManifest({
 						pid: process.pid,
-						endpoint: `http://127.0.0.1:${info.port}`,
+						endpoint: `http://${env.HOST_SERVICE_HOSTNAME}:${info.port}`,
 						authToken: env.HOST_SERVICE_SECRET,
 						startedAt,
 						organizationId: env.ORGANIZATION_ID,

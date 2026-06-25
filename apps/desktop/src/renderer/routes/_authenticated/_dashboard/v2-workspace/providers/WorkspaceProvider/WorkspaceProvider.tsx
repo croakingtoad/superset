@@ -1,6 +1,7 @@
 import type { SelectV2Workspace } from "@superset/db/schema";
 import { buildHostRoutingKey } from "@superset/shared/host-routing";
 import { createContext, type ReactNode, useContext } from "react";
+import { useDirectHostConnection } from "renderer/hooks/host-service/useDirectHostConnection";
 import { useRelayUrl } from "renderer/hooks/useRelayUrl";
 import {
 	getHostServiceHeaders,
@@ -25,13 +26,16 @@ export function WorkspaceProvider({
 }) {
 	const { machineId, activeHostUrl } = useLocalHostService();
 	const relayUrl = useRelayUrl();
+	const isRemote = workspace.hostId !== machineId;
+	const directUrl = useDirectHostConnection(isRemote ? workspace.hostId : null);
 	const hostUrl =
 		workspace.hostId === machineId
 			? activeHostUrl
-			: `${relayUrl}/hosts/${buildHostRoutingKey(
+			: (directUrl ??
+				`${relayUrl}/hosts/${buildHostRoutingKey(
 					workspace.organizationId,
 					workspace.hostId,
-				)}`;
+				)}`);
 
 	if (!hostUrl) {
 		return <div className="flex h-full w-full" />;
