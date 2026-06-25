@@ -34,7 +34,7 @@ permissions:
 jobs:
   build-windows:
     name: Build - Windows (x64)
-    runs-on: windows-latest
+    runs-on: windows-2022
 
     steps:
       - name: Enable long paths (Windows MAX_PATH workaround)
