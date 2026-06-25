@@ -64,15 +64,22 @@ jobs:
       - name: Install dependencies
         run: bun install --frozen --ignore-scripts
 
+      - name: Patch native-keymap for Electron 40 V8 API (C4996)
+        shell: pwsh
+        run: |
+          $files = Get-ChildItem -Recurse -Filter "keymapping.cc" -Path "node_modules" -ErrorAction SilentlyContinue
+          foreach ($file in $files) {
+            $content = Get-Content $file.FullName -Raw
+            Set-Content -Path $file.FullName -Value ("#pragma warning(disable: 4996)`r`n" + $content)
+            Write-Host "Patched: $($file.FullName)"
+          }
+
       - name: Set up MSVC build environment
         uses: ilammy/msvc-dev-cmd@v1
 
       - name: Install desktop native dependencies (Windows prebuild)
         working-directory: apps/desktop
-        shell: pwsh
-        run: |
-          $env:CL = "/wd4996"
-          bun run install:deps
+        run: bun run install:deps
 
       - name: Clean dev folder
         working-directory: apps/desktop
