@@ -1,0 +1,1 @@
+ALTER TABLE `settings` ADD `direct_host_connections` text;
